@@ -7,12 +7,16 @@ import java.util.List;
 
 public class DepartmentDAO {
 
-    public void saveDepartment(Department department) {
+    public void saveDepartmentWithEmployees(Department department, List<Employee> employees) {
         EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
         EntityTransaction transaction = null;
         try {
             transaction = entityManager.getTransaction();
             transaction.begin();
+            for (Employee employee : employees) {
+                employee.setDepartment(department);
+                department.addEmployee(employee);
+            }
             entityManager.persist(department);
             transaction.commit();
         } catch (Exception e) {
@@ -23,6 +27,28 @@ public class DepartmentDAO {
         } finally {
             entityManager.close();
         }
+    }
+
+    public Department getDepartment(int id) {
+        EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
+        Department department = null;
+        try {
+            department = entityManager.find(Department.class, id);
+        } finally {
+            entityManager.close();
+        }
+        return department;
+    }
+
+    public List<Department> getAllDepartments() {
+        EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
+        List<Department> departments = null;
+        try {
+            departments = entityManager.createQuery("from Department", Department.class).getResultList();
+        } finally {
+            entityManager.close();
+        }
+        return departments;
     }
 
     public void updateDepartment(Department department) {
@@ -43,24 +69,6 @@ public class DepartmentDAO {
         }
     }
 
-    public Department getDepartment(int id) {
-        EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
-        try {
-            return entityManager.find(Department.class, id);
-        } finally {
-            entityManager.close();
-        }
-    }
-
-    public List<Department> getAllDepartments() {
-        EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
-        try {
-            return entityManager.createQuery("from Department", Department.class).getResultList();
-        } finally {
-            entityManager.close();
-        }
-    }
-
     public void deleteDepartment(int id) {
         EntityManager entityManager = JPAUtil.getEntityManagerFactory().createEntityManager();
         EntityTransaction transaction = null;
@@ -70,8 +78,8 @@ public class DepartmentDAO {
             Department department = entityManager.find(Department.class, id);
             if (department != null) {
                 entityManager.remove(department);
-                transaction.commit();
             }
+            transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();

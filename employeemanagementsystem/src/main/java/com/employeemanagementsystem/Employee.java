@@ -12,11 +12,10 @@ public class Employee {
     private String name;
     private double salary;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
     private Department department;
 
-    // Getters and setters
     public int getId() {
         return id;
     }

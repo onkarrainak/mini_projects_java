@@ -1,6 +1,8 @@
 package com.employeemanagementsystem;
 
+
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,9 +14,8 @@ public class Department {
     private String name;
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Employee> employees;
+    private List<Employee> employees = new ArrayList<>();
 
-    // Getters and setters
     public int getId() {
         return id;
     }
@@ -37,5 +38,15 @@ public class Department {
 
     public void setEmployees(List<Employee> employees) {
         this.employees = employees;
+    }
+
+    public void addEmployee(Employee employee) {
+        employees.add(employee);
+        employee.setDepartment(this);
+    }
+
+    public void removeEmployee(Employee employee) {
+        employees.remove(employee);
+        employee.setDepartment(null);
     }
 }
